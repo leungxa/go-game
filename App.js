@@ -20,13 +20,16 @@ const createBoard = () => {
 
 
 const CellDisplay = (props) => {
-  console.log(props.value)
   return (
-    <div className="Cell">
+    <div className="Cell" onClick={props.onClick}>
       {props.value || '·'}
     </div>
   )
 }
+
+const checkCapture = (rowIndex, cellIndex, currPlayer, board) => {
+
+} 
 
 const DisplayBoard = () => {
   const [board, setBoard] = useState(createBoard());
@@ -35,6 +38,7 @@ const DisplayBoard = () => {
     if (board[rowIndex][cellIndex] === BOARD_EMPTY) {
       let newBoard = [...board]
       newBoard[rowIndex][cellIndex] = currPlayer
+      checkCapture(rowIndex,cellIndex, currPlayer, board)
       setBoard(newBoard)
       let newCurrPlayer = currPlayer === 1 ? 2 : 1
       setCurrPlayer(newCurrPlayer)
