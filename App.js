@@ -29,6 +29,50 @@ const CellDisplay = (props) => {
 
 const checkCapture = (rowIndex, cellIndex, currPlayer, board) => {
 
+  const hasExit = (rowIndex, cellIndex) => {
+    const currentVal = board[rowIndex][cellIndex]
+    if(currentVal === currPlayer) {
+      return false
+    }
+    if(currentVal === BOARD_EMPTY) {
+      return true
+    }
+    let foundLeft, foundRight, foundUp, foundDown
+    if(rowIndex > 0) {foundLeft = hasExit(rowIndex-1,cellIndex)}
+    if(rowIndex < BOARD_SIZE-1) {foundRight = hasExit(rowIndex+1)}
+    if(cellIndex > 0) {foundDown = hasExit(rowIndex,cellIndex-1)}
+    if(cellIndex < BOARD_SIZE-1) {foundUp = hasExit(rowIndex,cellIndex+1)}
+    return foundLeft || foundRight || foundDown || foundUp
+  }
+
+  // check left for enemy piece
+  // check top for enemy piece
+  // check right for enemy piece
+  // check bottom for enemy piece
+
+  const isEnemyPlayer = (value) => value !== currPlayer && value == null
+
+  let token = board[rowIndex-1][cellIndex]
+  if (isEnemyPlayer(token)) { 
+    hasExit(rowIndex-1, cellIndex)
+  }
+
+  token = board[rowIndex+1][cellIndex]
+  if (isEnemyPlayer(token)) {
+    hasExit(rowIndex+1, cellIndex) 
+  }
+
+  token = board[rowIndex][cellIndex-1]
+  if (isEnemyPlayer(token)) {
+    hasExit(rowIndex,cellIndex-1)
+  }
+
+  token = board[rowIndex][cellIndex+1]
+  if (isEnemyPlayer(token)) {
+    hasExit(rowIndex,cellIndex+1)
+  }
+
+  return 
 } 
 
 const DisplayBoard = () => {
