@@ -29,16 +29,22 @@ const CellDisplay = (props) => {
 
 const checkCapture = (rowIndex, cellIndex, currPlayer, board) => {
 
+  const seen = new Set()
+
   const hasExit = (rowIndex, cellIndex) => {
+  	const key = `${rowIndex},${cellIndex}`
+    if (seen.has(key)) return
     const currentVal = board[rowIndex][cellIndex]
-    if(currentVal === currPlayer) {
+    console.log(currentVal, rowIndex, cellIndex)
+    if(currentVal === currPlayer || currentVal == null) {
       return false
     }
     if(currentVal === BOARD_EMPTY) {
       return true
     }
+    seen.add(key)
     let foundLeft, foundRight, foundUp, foundDown
-    if(rowIndex > 0) {foundLeft = hasExit(rowIndex-1,cellIndex)}
+	  if(rowIndex > 0) {foundLeft = hasExit(rowIndex-1,cellIndex)}
     if(rowIndex < BOARD_SIZE-1) {foundRight = hasExit(rowIndex+1)}
     if(cellIndex > 0) {foundDown = hasExit(rowIndex,cellIndex-1)}
     if(cellIndex < BOARD_SIZE-1) {foundUp = hasExit(rowIndex,cellIndex+1)}
