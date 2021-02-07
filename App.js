@@ -45,7 +45,7 @@ const checkCapture = (rowIndex, cellIndex, currPlayer, board) => {
     seen.add(key)
     let foundLeft, foundRight, foundUp, foundDown
 	  if(rowIndex > 0) {foundLeft = hasExit(rowIndex-1,cellIndex)}
-    if(rowIndex < BOARD_SIZE-1) {foundRight = hasExit(rowIndex+1)}
+    if(rowIndex < BOARD_SIZE-1) {foundRight = hasExit(rowIndex+1, cellIndex)}
     if(cellIndex > 0) {foundDown = hasExit(rowIndex,cellIndex-1)}
     if(cellIndex < BOARD_SIZE-1) {foundUp = hasExit(rowIndex,cellIndex+1)}
     return foundLeft || foundRight || foundDown || foundUp
