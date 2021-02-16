@@ -13,7 +13,7 @@ const createBoard = () => {
     for(let j=0; j<BOARD_SIZE; j++) {
       row.push(BOARD_EMPTY);
     }
-    board.push(row);
+    board.push(row)
   }
   return board
 }
@@ -29,13 +29,16 @@ const CellDisplay = (props) => {
 
 const checkCapture = (rowIndex, cellIndex, currPlayer, board) => {
 
-  const seen = new Set()
+  board[rowIndex][cellIndex] = currPlayer
+  let seen = new Set()
 
   const hasExit = (rowIndex, cellIndex) => {
-  	const key = `${rowIndex},${cellIndex}`
+    const key = `${rowIndex},${cellIndex}`
+    // already checked this location - skip
     if (seen.has(key)) return
     const currentVal = board[rowIndex][cellIndex]
     console.log(currentVal, rowIndex, cellIndex)
+    // return false if there is no path forward
     if(currentVal === currPlayer || currentVal == null) {
       return false
     }
@@ -56,29 +59,48 @@ const checkCapture = (rowIndex, cellIndex, currPlayer, board) => {
   // check right for enemy piece
   // check bottom for enemy piece
 
-  const isEnemyPlayer = (value) => value !== currPlayer && value == null
+  const isEnemyPlayer = (value) => value !== BOARD_EMPTY && value !== currPlayer
 
-  let token = board[rowIndex-1][cellIndex]
-  if (isEnemyPlayer(token)) { 
-    hasExit(rowIndex-1, cellIndex)
+
+  let positionsToCheck = []
+
+  if (rowIndex-1 > 0) {
+    positionsToCheck.push([rowIndex-1, cellIndex])
   }
-
-  token = board[rowIndex+1][cellIndex]
-  if (isEnemyPlayer(token)) {
-    hasExit(rowIndex+1, cellIndex) 
+  if (rowIndex+1 < BOARD_SIZE) {
+    positionsToCheck.push([rowIndex+1, cellIndex])
   }
-
-  token = board[rowIndex][cellIndex-1]
-  if (isEnemyPlayer(token)) {
-    hasExit(rowIndex,cellIndex-1)
+  if (cellIndex-1 > 0) {
+    positionsToCheck.push([rowIndex, cellIndex-1])
   }
-
-  token = board[rowIndex][cellIndex+1]
-  if (isEnemyPlayer(token)) {
-    hasExit(rowIndex,cellIndex+1)
+  if (cellIndex+1 < BOARD_SIZE) {
+    positionsToCheck.push([rowIndex, cellIndex+1])
   }
+  console.log('posToCheck', positionsToCheck)
+  positionsToCheck.forEach(([posRow, posCell]) => {
+    let token = board[posRow][posCell]
+    console.log('checking', posRow, posCell, isEnemyPlayer(token))
+    if (isEnemyPlayer(token)) { 
+      seen = new Set()
+      console.log('checking exit')
+      let captured = !hasExit(posRow, posCell)
+      console.log('seen', seen)
+      console.log('captured?', captured, posRow, posCell)
+      if (captured) {
+        seen.forEach((seenValue) => {
+          let [ri, ci] = seenValue.split(',')
+          if (isEnemyPlayer(board[ri][ci])) {
+            board[ri][ci] = currPlayer
+          }
+        })
+      }
+    }
+  })
+  
 
-  return 
+
+
+  return board
 } 
 
 const DisplayBoard = () => {
@@ -86,9 +108,9 @@ const DisplayBoard = () => {
   const [currPlayer, setCurrPlayer] = useState(BOARD_BLACK)
   const placePiece = (rowIndex, cellIndex) => {
     if (board[rowIndex][cellIndex] === BOARD_EMPTY) {
-      let newBoard = [...board]
-      newBoard[rowIndex][cellIndex] = currPlayer
-      checkCapture(rowIndex,cellIndex, currPlayer, board)
+      // let newBoard = [...board]
+      // board[rowIndex][cellIndex] = currPlayer
+      let newBoard = checkCapture(rowIndex,cellIndex, currPlayer, board)
       setBoard(newBoard)
       let newCurrPlayer = currPlayer === 1 ? 2 : 1
       setCurrPlayer(newCurrPlayer)
