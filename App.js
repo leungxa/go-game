@@ -31,13 +31,14 @@ const checkCapture = (rowIndex, cellIndex, currPlayer, board) => {
 
   board[rowIndex][cellIndex] = currPlayer
   let seen = new Set()
+  let piecesCaptured = 0
 
   const hasExit = (rowIndex, cellIndex) => {
     const key = `${rowIndex},${cellIndex}`
     // already checked this location - skip
     if (seen.has(key)) return
     const currentVal = board[rowIndex][cellIndex]
-    console.log(currentVal, rowIndex, cellIndex)
+    // console.log(currentVal, rowIndex, cellIndex)
     // return false if there is no path forward
     if(currentVal === currPlayer || currentVal == null) {
       return false
@@ -64,13 +65,13 @@ const checkCapture = (rowIndex, cellIndex, currPlayer, board) => {
 
   let positionsToCheck = []
 
-  if (rowIndex-1 > 0) {
+  if (rowIndex-1 >= 0) {
     positionsToCheck.push([rowIndex-1, cellIndex])
   }
   if (rowIndex+1 < BOARD_SIZE) {
     positionsToCheck.push([rowIndex+1, cellIndex])
   }
-  if (cellIndex-1 > 0) {
+  if (cellIndex-1 >= 0) {
     positionsToCheck.push([rowIndex, cellIndex-1])
   }
   if (cellIndex+1 < BOARD_SIZE) {
@@ -82,36 +83,31 @@ const checkCapture = (rowIndex, cellIndex, currPlayer, board) => {
     console.log('checking', posRow, posCell, isEnemyPlayer(token))
     if (isEnemyPlayer(token)) { 
       seen = new Set()
-      console.log('checking exit')
       let captured = !hasExit(posRow, posCell)
-      console.log('seen', seen)
-      console.log('captured?', captured, posRow, posCell)
       if (captured) {
         seen.forEach((seenValue) => {
           let [ri, ci] = seenValue.split(',')
           if (isEnemyPlayer(board[ri][ci])) {
             board[ri][ci] = currPlayer
+            piecesCaptured++
           }
         })
       }
     }
   })
-  
-
-
-
-  return board
+  return [board, piecesCaptured]
 } 
 
 const DisplayBoard = () => {
   const [board, setBoard] = useState(createBoard());
   const [currPlayer, setCurrPlayer] = useState(BOARD_BLACK)
+  const [scores, setScores] = useState({1:0, 2:0})
   const placePiece = (rowIndex, cellIndex) => {
     if (board[rowIndex][cellIndex] === BOARD_EMPTY) {
-      // let newBoard = [...board]
-      // board[rowIndex][cellIndex] = currPlayer
-      let newBoard = checkCapture(rowIndex,cellIndex, currPlayer, board)
+      let [newBoard, piecesCaptured] = checkCapture(rowIndex, cellIndex, currPlayer, board)
       setBoard(newBoard)
+      let newScore = scores[currPlayer] + piecesCaptured
+      setScores({...scores, [currPlayer]: newScore})
       let newCurrPlayer = currPlayer === 1 ? 2 : 1
       setCurrPlayer(newCurrPlayer)
     }
@@ -130,6 +126,9 @@ const DisplayBoard = () => {
         </div>
       )
     })}
+    <p>Pieces each player has captured</p>
+    <p>Black: {scores[BOARD_BLACK]}</p>
+    <p>White: {scores[BOARD_WHITE]}</p>
     </div>
   )
 }
